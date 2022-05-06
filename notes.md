@@ -228,3 +228,12 @@ I also add the third parrty script to the HTML to make it all work on the client
 I install Heroku on my computer and sign up in the website.
 Then I go to the CMD in VScode and typy 'heroku login'
 Now, I go to package.json to fix the start script... I make it 'node server.js' ... also, it is important that I specify the engine in package.js
+When I checked the PORT, I entered 'heroku create' and it created a new repo in my GIT
+then I type 'git push heroku master' (to make it work, I have to first create the master or main brahc. Otherwise, it won't work.. won't build)
+I have to speify the config.env variables manually
+I don't have to assign the PORT variable. Heroku does it itself
+After we have set all the variables (either through VSCode or through Heroku website) we can start the app writing 'heroku open'
+We can change the name of the app (that is then shown in the URL) througg the CMD 'heroku apps:rename deevdevs-natours-portfolio'
+
+HERE I CAN TEST THE SPEED
+https://www.giftofspeed.com/gzip-test/

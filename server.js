@@ -30,7 +30,7 @@ mongoose
 // .catch(err => console.log('ERROR'));
 
 //////////////// START SERVER
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 3000; // it is MANDATORY on HEROKU. Otherwise, app won't work
 const server = app.listen(port, () => {
   console.log(`App running on port ${port}...`);
 });
