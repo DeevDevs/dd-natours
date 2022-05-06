@@ -17,8 +17,8 @@ const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 //for GZIP
 const compression = require('compression');
-//for HEROKU SIGTERM
-//  ?????
+//for CORS - it is another middleware function
+const cors = require('cors');
 // const res = require('express/lib/response');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -43,6 +43,16 @@ app.use(express.static(path.join(__dirname, 'public'))); // supported way of bui
 //however, we do not need to mention this 'public' word in the URL, we can go directly through 127.0.0.1:3000/overview.html to reach that static file
 
 //////////////// GLOBAL MIDDLEWARES /////////////////////////////
+//this one is for COR - IMPLEMENT CORS - ACCESS CONTROL ALLOW ORIGIN for everyone
+app.use(cors()); //if we want to allow it everywhere, we add it here. If we want to allow CORS only on specific route, we should go to that router, and add it there in the req,res cycle
+//in case we want our api to be allowed to access only from one domain(e.g. front-end is www.natours.com), then we would write it this way
+// app.use(cors({
+//   origin: 'https://www.natours.com'
+// }));
+//this is for the options request that occurs at the pre-flight phase
+app.options('*', cors()); // this way we allow even complex requests on all routes
+// if we want to restrict it, then we can e.g. make it like this
+// app.options('/api/v1/tours/:id', cors()); // then it is the only path that is allowed to have pre-flight phase
 
 //this is a middleware that is used to SET SECURITY HTTP HEADERS... it is an unusual function, that creates parameters that will later be set inside the use method... it is a good practice to run this middleware early to make sure headers have all the necessary parameters set
 app.use(helmet());

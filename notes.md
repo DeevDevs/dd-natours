@@ -243,3 +243,29 @@ I changed settings in the CreateSendToken function in authoController, also I ad
 
 //Listening to SIGTERM signals from Heroku
 we go to server.js and add code to gracefully shut down the server when SIGTERM signal comes
+then we upload everything... and ... to check our dynos we can type in CMD 'heroku ps'
+then we can restart the app by 'heroku ps:restart' and see the logs through 'heroku logs --tail'
+
+// TO ALLOW CORS, we need to install a package 'npm i cors'
+then we add it as another middleware
+app.use(cors()); //if we want to allow it everywhere, we add it here. If we want to allow CORS only on specific route, we should go to that router, and add it there in the req,res cycle
+
+in case we want our api to be allowed to access only from one domain(e.g. front-end is www.natours.com), then we would write it this way
+app.use(cors({
+origin: 'https://www.natours.com'
+}));
+
+but it is not enough... it will only work with simple requests (GET and POST). In case we want to allow PATCH, DELETE, we have to remember about the options-request (the one that browser sends to our server before the actual PATCH/DELETE request). So, we have to enable our server to respond to such requests. Once we respond to such request, the browser will understand that it is safe, and will execute the actual request
+this is for the options request that occurs at the pre-flight phase
+app.options('\*', cors()); // this way we allow even complex requests on all routes
+if we want to restrict it, then we can e.g. make it like this
+app.options('/api/v1/tours/:id', cors()); // then it is the only path that is allowed to have pre-flight phase
+
+// IN PACKAGE JSON I SWITCHED FROM
+"engines": {
+"node": ">=10.0.0"
+}
+to
+"engines": {
+"node": "^10"
+}
