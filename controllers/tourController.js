@@ -14,7 +14,7 @@ const multer = require('multer');
 const multerStorage = multer.memoryStorage();
 
 const multerFilter = (req, file, cb) => {
-  console.log(file);
+  // console.log(file);
   if (file.mimetype.startsWith('image')) {
     //if it is an image, then we pass 'TRUE' to the callback, otherwise, we throw an error using our API utils and pass FALSE
     cb(null, true);

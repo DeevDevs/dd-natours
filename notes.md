@@ -216,3 +216,10 @@ also, later I have t create an accound in sendgrid (which I did, but it is under
 // For accepting payments, we have to go to stripe.com and create account
 I install 'npm i stripe@7' and take the secret key from my account to the CONFIG.
 I also add the third parrty script to the HTML to make it all work on the client side
+
+// AFTER I added my files to github, I started modifying some stuff to make it ready for deployment
+
+1. I install 'npm i compression' to make my responses/requests compressed. I add it to app.js
+2. I remove all console.logs, except for the most important ones
+3. I fix the URLs to make them fit the server I am planning to use.
+4. build final JS bundle

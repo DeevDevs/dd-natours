@@ -5,8 +5,8 @@ const dotenv = require('dotenv');
 
 //listener below listens to any kinds of uncaught exceptions that occur in our application
 process.on('uncaughtException', err => {
-  console.log('UNCAUGHT EXCEPTION! Shutting down...');
-  console.log(err.name, err.message);
+  // console.log('UNCAUGHT EXCEPTION! Shutting down...');
+  // console.log(err.name, err.message);
   //we don't need to run server.close() as there are no asyncronous process involved in such kind of errors
   process.exit(1); // 0 stands for success; 1 stands for uncaught exception
 });

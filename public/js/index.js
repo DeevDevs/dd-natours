@@ -57,7 +57,7 @@ if (updateUserForm) {
   updatePasswordForm.addEventListener('submit', async e => {
     e.preventDefault();
     document.querySelector('.btn--save-password').textContent = 'Updating';
-    console.log('Password submission has been triggered');
+    // console.log('Password submission has been triggered');
     const updates = new FormData(updatePasswordForm);
     const data = Object.fromEntries(updates);
     // console.log(data);

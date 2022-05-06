@@ -34,7 +34,7 @@ const importData = async () => {
     //whenever we create a new user, he should confirm his password. otherwise data won't be saved. however, to import data, we do not need to validate it (in our case). So, we can turn off the validation... we also have to turn off the middlewares that encrypt the password (because imported database already has encrypted passwords)
     await User.create(users, { validateBeforeSave: false });
     await Review.create(reviews);
-    console.log('Data successfully loaded');
+    // console.log('Data successfully loaded');
   } catch (error) {
     console.log(error);
   }
@@ -49,7 +49,7 @@ const deleteData = async () => {
     await Tour.deleteMany();
     await User.deleteMany();
     await Review.deleteMany();
-    console.log('Data successfully deleted');
+    // console.log('Data successfully deleted');
   } catch (error) {
     console.log(error);
   }

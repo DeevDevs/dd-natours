@@ -31,7 +31,9 @@ const sendErrorDev = (err, req, res) => {
       stack: err.stack
     });
   }
-  // RENDERED IN WEBSITE
+  //1. Log for details
+  console.error('!!!ERROR!!!', err);
+  //2. RENDERED IN WEBSITE
   return res.status(err.statusCode).render('error', {
     title: 'Something went wrong',
     message: err.message
@@ -49,6 +51,9 @@ const sendErrorProd = (err, req, res) => {
       });
     }
     // Unknown error --> do not leak error details
+    //1.send Error Details
+    console.error('!!!ERROR!!!', err);
+    //2. return the error message
     return res.status(500).json({
       status: 'error',
       message: 'Oops, something went wrong =('
@@ -62,6 +67,9 @@ const sendErrorProd = (err, req, res) => {
       message: err.message
     });
   }
+  //1.send Error Details
+  console.error('!!!ERROR!!!', err);
+  //2. return the error message
   return res.status(err.statusCode).render('error', {
     title: 'Something went wrong',
     message: 'Please, try again later'
@@ -70,8 +78,8 @@ const sendErrorProd = (err, req, res) => {
 
 //THIS IS A GLOBAL ERROR HANDLER
 module.exports = (err, req, res, next) => {
-  console.log('I was triggered');
-  console.log(err);
+  // console.log('I was triggered');
+  // console.log(err);
   //   console.log(err.stack);
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';

@@ -15,6 +15,7 @@ const xss = require('xss-clean');
 //this is to avoid parameter pollution
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
+const compression = require('compression');
 // const res = require('express/lib/response');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -86,6 +87,9 @@ const limiter = rateLimit({
 });
 //here, we only address the routes that start with '/ api'
 app.use('/api', limiter);
+
+//here I add compression to the app to make it compress TEXT requests/responses
+app.use(compression());
 
 //Here, I make every request object have a new key/value parameter with the current time ... TEST MIDDLEWARE
 app.use((req, res, next) => {

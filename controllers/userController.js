@@ -24,7 +24,7 @@ const multerStorage = multer.memoryStorage();
 
 //and her we need to set multer filter ... it check if the uploaded file is an image or not
 const multerFilter = (req, file, cb) => {
-  console.log(file);
+  // console.log(file);
   if (file.mimetype.startsWith('image')) {
     //if it is an image, then we pass 'TRUE' to the callback, otherwise, we throw an error using our API utils and pass FALSE
     cb(null, true);

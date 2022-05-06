@@ -11,14 +11,15 @@ export const bookTour = async tourId => {
     //     method: 'GET',
     //     url: `http://127.0.0.1:8000/api/v1/bookings/checkout-session/${tourId}`
     //   });
-    const session = await axios(`http://127.0.0.1:8000/api/v1/bookings/checkout-session/${tourId}`);
-    console.log(session);
+    // const session = await axios(`http://127.0.0.1:8000/api/v1/bookings/checkout-session/${tourId}`);
+    const session = await axios(`/api/v1/bookings/checkout-session/${tourId}`);
+    // console.log(session);
     // 2. create checkout form + charge the credit card
     await stripe.redirectToCheckout({
       sessionId: session.data.session.id
     });
   } catch (err) {
-    console.log(err);
+    // console.log(err);
     showAlert('error', err);
   }
 };

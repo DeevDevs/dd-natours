@@ -65,7 +65,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   // });
 
   const url = `${req.protocol}://${req.get('host')}/me`;
-  console.log(url);
+  // console.log(url);
   await new Email(newUser, url).sendWelcome();
 
   createSendToken(newUser, 201, res);
@@ -136,7 +136,7 @@ exports.isLoggedIn = async (req, res, next) => {
 
 //this middleware will be run before the getAllTours function to check if the user is logged in
 exports.protect = catchAsync(async (req, res, next) => {
-  console.log('User being checked');
+  // console.log('User being checked');
   //1. Getting the token and check if it is there.. if it is not in the header, check it in the response (ADDED AFTER RENDERING LOGIN PAGE)
   let token;
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
@@ -193,7 +193,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
 
   //we wrap this piece of code into tryCatch block because we do not just want to send an error in case of an error
   try {
-    console.log('trying to send email');
+    // console.log('trying to send email');
     // await sendEmail({
     //   email: user.email,
     //   subject: 'Your password reset token (Valid for 10 min)',
@@ -206,7 +206,7 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
     user.passwordResetToken = undefined;
     user.passwordResetExpires = undefined;
     await user.save({ validateBeforeSave: false });
-    console.log(err);
+    // console.log(err);
     return next(new AppError('There was an error sendind an email. Please, try again later.', 500));
   }
 
