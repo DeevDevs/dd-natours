@@ -223,3 +223,8 @@ I also add the third parrty script to the HTML to make it all work on the client
 2. I remove all console.logs, except for the most important ones
 3. I fix the URLs to make them fit the server I am planning to use.
 4. build final JS bundle
+
+// HEROKU
+I install Heroku on my computer and sign up in the website.
+Then I go to the CMD in VScode and typy 'heroku login'
+Now, I go to package.json to fix the start script... I make it 'node server.js' ... also, it is important that I specify the engine in package.js
