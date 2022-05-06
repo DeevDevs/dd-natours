@@ -269,3 +269,6 @@ to
 "engines": {
 "node": "^10"
 }
+
+// ONCE THE APP IS DEPLOYED, WE SET WEBHOOK IN STRIPES. We pass in the URL that the Stripe will go to once the payment is successful. Once we set a unique URL, we have to handle it, so we go to app.js to add the route THERE.
+Then we fixed/removed all the URLs and previosly used handlers because now we are using another handler. As the handler requires raw data, we also placed the URL BEFORE the JSON CONVERTER. Now, we using handler to check if everything is correct (for that I copied secret for webhook from stripe )

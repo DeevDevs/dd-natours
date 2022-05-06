@@ -26,6 +26,7 @@ const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
 const reviewRouter = require('./routes/reviewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
+const bookingController = require('./controllers/bookingController');
 const viewRouter = require('./routes/viewRoutes');
 // we run the app by triggering the express package as function
 //Start the App
@@ -66,6 +67,11 @@ if (process.env.NODE_ENV === 'development') {
   app.use(morgan('dev'));
 }
 
+//STRIPE WEBHOOK ROUTE
+//here I add express.raw asn a middleware (which is originally from express, to convert the data into the proper format for this handler)
+app.post('/webhook-checkout', express.raw({ type: 'application/json' }), bookingController.webhookCheckout);
+//here I add compression to the app to make it compress TEXT requests/responses.. we place it here because the handler needs the data in request (from the stripe) to be in the RAW form (NOT JSON)... therefore we place it BEFORE JSON CONVERTER
+
 //this is middleware... it is between the request and response and is used to modify the data... for example here it automatically retrieves js object/s from the json it receives in requests ... BODY PARSER, READING DATA FROM BODY INTO REQ.BODY ... the options inside are used to limit the amount of data.. so, if the request body is more than 10 kb, it will not be accepted
 app.use(express.json({ limit: '10kb' }));
 //this is to retrieve cookies from requests
@@ -103,7 +109,6 @@ const limiter = rateLimit({
 //here, we only address the routes that start with '/ api'
 app.use('/api', limiter);
 
-//here I add compression to the app to make it compress TEXT requests/responses
 app.use(compression());
 
 //Here, I make every request object have a new key/value parameter with the current time ... TEST MIDDLEWARE

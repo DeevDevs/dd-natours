@@ -16,10 +16,14 @@ router.get('/me', authController.protect, viewsController.getAccount);
 
 // router.use(authController.isLoggedIn);
 
-router.get('/', bookingController.createBookingCheckout, authController.isLoggedIn, viewsController.getOverview);
+router.get('/', authController.isLoggedIn, viewsController.getOverview);
 router.get('/tour/:slug', authController.isLoggedIn, viewsController.getTour);
 router.get('/login', authController.isLoggedIn, viewsController.getLoginForm);
+
+//ONCE WE ADDED THE WEBHOOKCHECKOUT HANDLER, WE DO NOT NEED bookingController.createBookingCheckout..
+// router.get('/my-tours', bookingController.createBookingCheckout, authController.protect, viewsController.getMyTours);
 router.get('/my-tours', authController.protect, viewsController.getMyTours);
+//instead we added route + handler to the app.js
 
 // router.post('/submit-user-data', authController.protect, viewsController.updateUserData);
 
