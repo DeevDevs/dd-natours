@@ -16,7 +16,7 @@ const signToken = id => {
 };
 
 //refactoring... this is to send responses
-const createSendToken = (user, statusCode, res) => {
+const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user._id);
 
   //these are cookie Options
@@ -29,7 +29,9 @@ const createSendToken = (user, statusCode, res) => {
     httpOnly: true
   };
   //here, if statement makes it work only in production (when we user secure connection - https)
-  if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  // if (process.env.NODE_ENV === 'production') cookieOptions.secure = true;
+  // if (req.secure) cookieOptions.secure = true; // this is the real principle, but in heroku it does not work with
+  if (req.secure || req.headers['x-forwarded-proto'] === 'https') cookieOptions.secure = true; // this is specific for HEROKU... we check if the connection is secure like THIS (see second condition)... we also need to go to APP.JS and enable trustProxy
   //this is how we create/send a cookie ...
   res.cookie('jwt', token, cookieOptions);
 
@@ -68,7 +70,7 @@ exports.signup = catchAsync(async (req, res, next) => {
   // console.log(url);
   await new Email(newUser, url).sendWelcome();
 
-  createSendToken(newUser, 201, res);
+  createSendToken(newUser, 201, req, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
@@ -92,7 +94,7 @@ exports.login = catchAsync(async (req, res, next) => {
   //   status: 'success',
   //   token
   // });
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 //THIS MIDDLEWARE IS TO REMOVE THE COOKIE FROM THE LOCAL STORAGE - we just overwrite the existing cookie with some dummy text and make it expite in 10 seconds
@@ -245,7 +247,7 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
   //   status: 'success',
   //   token
   // });
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });
 
 //this function updates the password
@@ -271,5 +273,5 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
   //   status: 'success',
   //   token
   // });
-  createSendToken(user, 200, res);
+  createSendToken(user, 200, req, res);
 });

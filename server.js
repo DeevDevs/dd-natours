@@ -45,6 +45,14 @@ process.on('unhandledRejection', err => {
   });
 });
 
+// Related to SIGTERM from HEROKU
+process.on('SIGTERM', () => {
+  console.log('SIGTERM received. SHUTTING DOWN gracefully...');
+  server.close(() => {
+    console.log('Process terminated!');
+  });
+});
+
 // MOVED Code
 
 // //Mongoose schema

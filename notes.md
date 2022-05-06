@@ -237,3 +237,9 @@ We can change the name of the app (that is then shown in the URL) througg the CM
 
 HERE I CAN TEST THE SPEED
 https://www.giftofspeed.com/gzip-test/
+
+TEST FOR SECURE HTTP CONNECTION
+I changed settings in the CreateSendToken function in authoController, also I added Trust Proxy to app.js
+
+//Listening to SIGTERM signals from Heroku
+we go to server.js and add code to gracefully shut down the server when SIGTERM signal comes

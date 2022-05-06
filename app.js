@@ -15,7 +15,10 @@ const xss = require('xss-clean');
 //this is to avoid parameter pollution
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
+//for GZIP
 const compression = require('compression');
+//for HEROKU SIGTERM
+//  ?????
 // const res = require('express/lib/response');
 const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
@@ -27,6 +30,8 @@ const viewRouter = require('./routes/viewRoutes');
 // we run the app by triggering the express package as function
 //Start the App
 const app = express();
+
+app.enable('trust proxy'); // through this setting we allow createSendToken function in authController check the secureity of the connection
 
 //this line below tells express what kind of engine we will use for creating webpage templates... to make this code work we might need to install PUG module (npm i pug)
 app.set('view engine', 'pug');
