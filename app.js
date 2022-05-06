@@ -24,6 +24,7 @@ const reviewRouter = require('./routes/reviewRoutes');
 const bookingRouter = require('./routes/bookingRoutes');
 const viewRouter = require('./routes/viewRoutes');
 // we run the app by triggering the express package as function
+//Start the App
 const app = express();
 
 //this line below tells express what kind of engine we will use for creating webpage templates... to make this code work we might need to install PUG module (npm i pug)
