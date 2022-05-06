@@ -12,6 +12,9 @@ const router = express.Router();
 //   });
 // });
 
+//this middleware is to check if there are any alert message to display to the user... go to viewsController to see
+router.use(viewsController.alerts);
+
 router.get('/me', authController.protect, viewsController.getAccount);
 
 // router.use(authController.isLoggedIn);

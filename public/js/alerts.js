@@ -4,9 +4,9 @@ export const hideAlert = () => {
   if (el) el.parentElement.removeChild(el);
 };
 
-export const showAlert = (type, msg) => {
+export const showAlert = (type, msg, time = 6) => {
   hideAlert();
   const markup = `<div class="alert alert--${type}">${msg}</div>`;
   document.querySelector(document.body.insertAdjacentHTML('afterbegin', markup));
-  window.setTimeout(hideAlert, 3000);
+  window.setTimeout(hideAlert, time * 1000);
 };

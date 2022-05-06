@@ -8,7 +8,8 @@ html
             link(rel='shortcut icon', type='image/png', href='/img/favicon.png')
             link(rel='stylesheet', href='https://fonts.googleapis.com/css?family=Lato:300,300i,700') 
             title Natours | #{title}
-    body
+    //- Here I add dataset property to the body used ONLY in case of the booking. It will check if the alert is passed in the response, and if yes - render the alert message for the user.. it will be stored in res.locals =)
+    body(data-alert=`${alert ? alert : ''}`)
         //  HEADER
         include _header
       

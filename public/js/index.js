@@ -3,6 +3,7 @@ import { login, logout } from './login.js';
 import { updateSettings } from './updateSettings.js';
 import { displayMap } from './mapbox.js';
 import { bookTour } from './stripe.js';
+import { showAlert } from './alerts.js';
 
 // DOM Elements
 const mapBox = document.getElementById('map');
@@ -76,3 +77,6 @@ if (bookTourBtn) {
     bookTour(tourId);
   });
 }
+
+const alertMessage = document.querySelector('body').dataset.alert;
+if (alertMessage) showAlert('success', alertMessage, 10);
