@@ -32,7 +32,7 @@ const viewRouter = require('./routes/viewRoutes');
 //Start the App
 const app = express();
 
-app.enable('trust proxy'); // through this setting we allow createSendToken function in authController check the secureity of the connection
+app.enable('trust proxy'); // through this setting we allow createSendToken function in authController check the security of the connection
 
 //this line below tells express what kind of engine we will use for creating webpage templates... to make this code work we might need to install PUG module (npm i pug)
 app.set('view engine', 'pug');
