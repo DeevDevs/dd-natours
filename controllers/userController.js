@@ -1,50 +1,37 @@
-// const fs = require('fs');
+// use model based on the mongoose schema (использует модель на основе mongoose схемы)
 const User = require('./../models/userModel');
+// one of our utils that wraps the asyncronous functions (наша утилита для работы с асинхронным кодом)
 const catchAsync = require('./../utils/catchAsync');
+// one of our utils that catches the errors (наша утилита для обработки ошибок)
 const AppError = require('../utils/appError');
+// one of our utils with universal functions/handlers (наша утилита с универсальными функциями)
 const factory = require('./handlerFactory');
-//this package is to resize user photos
+// packages to process uploaded images (пакеты для обработки загружаемых изображений)
 const sharp = require('sharp');
-/////////////////////// STUFF RELATED TO MULTER /////////////////////////////////
 const multer = require('multer');
-//we need to create a storage and file settings for Multer... the parameters are set manually (see below)
-// const multerStorage = multer.diskStorage({
-//   //for Storage, we pass destination which is a function that accepts the request, the file that we want to work with, and the callback function that, in turn, accepts an error or null, and apath to a folder in the disk
-//   destination: (req, file, cb) => {
-//     cb(null, 'public/img/users');
-//   },
-//   //for File, we have the same parameters... inside, we specify what the name of the file should consist of and the format
-//   filename: (req, file, cb) => {
-//     //user-userID-timestamp.format
-//     const ext = file.mimetype.split('/')[1]; // we retrieve the format from the object with data about the uploaded photo
-//     cb(null, `user-${req.user.id}-${Date.now()}.${ext}`);
-//   }
-// }); // this is absolutely well-working code. However, to make sharp resize the image, we need to keep it in the memoryStorage (RAM), so we add other settings
+// settings for the multer function to process and store images (настройки multer функции для обработки и созранения изображениц)
 const multerStorage = multer.memoryStorage();
-
-//and her we need to set multer filter ... it check if the uploaded file is an image or not
 const multerFilter = (req, file, cb) => {
-  // console.log(file);
   if (file.mimetype.startsWith('image')) {
-    //if it is an image, then we pass 'TRUE' to the callback, otherwise, we throw an error using our API utils and pass FALSE
     cb(null, true);
   } else cb(new AppError('Not an image. Please, upload images only', 404), false);
 };
-
-// const upload = multer({ dest: 'public/img/users' });
-//after we have set the multer storage and filter, we can add them to the multer options
+// create a function with settings (создает функцию с настройками)
 const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
-//below is how we use multer... we add the name of the field where the file is stored... it will also add some info about the file in the request object ... it is stored in req.file
+
 exports.uploadUserPhoto = upload.single('photo');
-//////////////////////////////////////////////////////////////////////////
-///////////////////////// STUFF RELATED TO IMAGE-RESIZING - SHARP //////////////////////////
+
+/**
+ *  allow to upload profile image (позволяют загружать изображения для профиля)
+ * @param {reqObject, resObject, function}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   if (!req.file) return next();
-
-  //because we keep the image in the MEMORY (not the disk), the filename is not assigned in Multer. So, we save the filename manually, os to have access to it in the updateMe middleware below
+  // assign the filename (подготавливаем уникальное имя для файла)
   req.file.filename = `user-${req.user.id}-${Date.now()}.jpeg`;
-
-  //once we store the image in the memory, we can find it in buffer
+  //once we store the image in the memory, we can find it in buffer (как только мы сохраняем изображение в памяти, мы находим его в буфере)
   await sharp(req.file.buffer)
     .resize(500, 500)
     .toFormat('jpeg')
@@ -54,8 +41,7 @@ exports.resizeUserPhoto = catchAsync(async (req, res, next) => {
   next();
 });
 
-//////////////////////////////////////////////////////////////////////////
-
+// a supporting function to filter the keys that the user wants to/can update (вспомогательная функция для отфильтровки полей данных, которые нельзя обновить)
 const filterObj = (obj, ...allowedFields) => {
   const newObj = {};
   Object.keys(obj).forEach(key => {
@@ -64,39 +50,28 @@ const filterObj = (obj, ...allowedFields) => {
   return newObj;
 };
 
-exports.getAllUsers = factory.getAll(User);
-// exports.getAllUsers = catchAsync(async function(req, res, next) {
-//   const users = await User.find();
-//   // SEND RESPONSE
-//   res.status(200).json({
-//     status: 'success',
-//     requestedAt: req.requestTime,
-//     results: users.length,
-//     data: { users: users }
-//   });
-// });
-
-//this middleware creates the params in request in case the user wants to find himself.
+//this middleware creates the params in request in case the user wants to find himself (ПО которое позволяет пользователю найти свои данные)
 exports.getMe = (req, res, next) => {
   req.params.id = req.user.id;
   next();
 };
 
+/**
+ *  allow the user to update profile data (позволяют пользователю обновить данные профиля)
+ * @param {reqObject, resObject, function}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 exports.updateMe = catchAsync(async (req, res, next) => {
-  // console.log(req.file);
-  // console.log(req.body);
-  //1. create error, if user posts password data
   if (req.body.password || req.body.passwordConfirm) {
     return next(new AppError('This route is not for password updates. Please, use /updateMyPassword', 400));
   }
-  //2. filtered out unwanted field names
-  //this method below onle allows data under certain passed keys (name, email)
+  // filter unwanted fields (отфильтровывает ненужные поля данных)
   const filteredBody = filterObj(req.body, 'name', 'email');
-  //and here we add the name of the photo file to update the user photo (we do it AFTER MULTER)
+  // add the name of the photo file, if the photo was updated (добавляет название файла, если изображение обновляют)
   if (req.file) filteredBody.photo = req.file.filename;
 
-  //3. update user document
-  //the option new:true makes it return an updated user object,
+  // udpate user document and user object (обновляет документ пользователя)
   const updatedUser = await User.findByIdAndUpdate(req.user.id, filteredBody, { new: true, runValidators: true });
   res.status(200).json({
     status: 'success',
@@ -106,24 +81,25 @@ exports.updateMe = catchAsync(async (req, res, next) => {
   });
 });
 
+// makes the user status inactive, hence deleting the user (делает пользователя инактивным, таким образом удаляя его)
 exports.deleteMe = catchAsync(async (req, res, next) => {
-  //1.
   await User.findByIdAndUpdate(req.user.id, { active: false });
-
   res.status(204).json({
     status: 'success',
     data: null
   });
 });
 
+// creates a new user (создает нового пользователя)
 exports.createUser = (req, res) => {
   res.status(500).json({
     status: 'error',
-    message: 'This route is not defined. Please, user /signup/ instead.'
+    message: 'This route is not defined. Please, use /signup/ instead.'
   });
 };
 
+//functions created on the base of the handlers factory (функции созданные на базе нашей утилиты с универсальными функциями)
+exports.getAllUsers = factory.getAll(User);
 exports.getUser = factory.getOne(User);
-//DO NOT update passwords with this
 exports.updateUser = factory.updateOne(User);
 exports.deleteUser = factory.deleteOne(User);

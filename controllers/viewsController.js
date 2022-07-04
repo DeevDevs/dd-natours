@@ -1,89 +1,59 @@
+// brings the model with the tour schema (схему для базы данных с турами)
 const Tour = require('../models/tourModel');
-const User = require('../models/userModel');
+// brings the model with the booking schema (схему для базы данных с бронированиями)
 const Booking = require('../models/bookingModel');
+// one of our utils that wraps the asyncronous functions (наша утилита для работы с асинхронным кодом)
 const catchAsync = require('../utils/catchAsync');
+// one of our utils that catches the errors (наша утилита для обработки ошибок)
 const AppError = require('../utils/appError');
-// const Review = require('../models/reviewModel');
 
+// retrieves the tour data and renders the page (выводит данные тура и рендерит страницу)
 exports.getOverview = catchAsync(async (req, res, next) => {
-  //1. get the tour data from our collection
   const tours = await Tour.find();
-
-  //2. build a template
-  //3. render that template using the data
-
   res.status(200).render('overview', {
     title: 'All Tours',
     tours
   });
 });
 
+// retrieves the tour data and renders the page (выводит данные тура и рендерит страницу)
 exports.getTour = catchAsync(async (req, res, next) => {
-  //1. Get the data for the requested tour
   const tour = await Tour.findOne({ slug: req.params.slug }).populate({
     path: 'reviews',
     fields: 'review rating user'
   });
-
   if (!tour) return next(new AppError('No tour found on your request', 404));
-
-  //2. render that template using the data
   res.status(200).render('tour', {
     title: `${tour.name} Tour`,
     tour
   });
 });
 
+//renders login page (рендерит страницу для входа пользователя)
 exports.getLoginForm = (req, res) => {
   res.status(200).render('login', {
     title: `Log into your account`
   });
 };
 
+//renders user profile page (рендерит страницу профиля пользователя)
 exports.getAccount = (req, res) => {
   res.status(200).render('account', {
     title: 'My Account'
   });
 };
-
+//renders the page with all the booked tours (рендерит страницу со всем забронированными турами)
 exports.getMyTours = catchAsync(async (req, res, next) => {
-  // 1. find all bookings
   const allBookings = await Booking.find({ user: req.user.id });
-
-  // 2. find tours
   const tourIDs = allBookings.map(el => el.tour);
-  //this is how we can find tours according to IDs in the array. The options below will try to 'find all the tours whose IDs are in the tourIDs
   const tours = await Tour.find({ _id: { $in: tourIDs } });
-
   res.status(200).render('overview', {
     title: 'My Tours',
     tours
   });
 });
 
-// FIRST IT WAS USED FOR THE USER UPDATE THROUGH FRONT END (WITHOUT API) BUT THEN IT WAS MOVED TO THE API
-// exports.updateUserData = catchAsync(async (req, res, next) => {
-//   const updatedUser = await User.findByIdAndUpdate(
-//     req.user.id,
-//     {
-//       name: req.body.name,
-//       email: req.body.email
-//     },
-//     {
-//       // it means that we want the updated user data after it is updated
-//       new: true,
-//       //and we want the changes to be checked before they are made
-//       validators: true
-//     }
-//   );
-//   //now we just want to reload the page with the account details
-//   res.status(200).render('account', {
-//     title: 'My Account',
-//     //however, after the changes in the user data, the user data that is passed through requests is outdated. So, it is IMPORTANT to pass new user details
-//     user: updatedUser
-//   });
-// });
-
+// adds alert info to the response object (добавляет уведомление в объект ответа)
 exports.alerts = (req, res, next) => {
   const alert = req.query.alert;
   if (alert === 'booking') {

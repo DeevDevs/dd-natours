@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+// a mongoose schema for bookings (схема для бронирований)
 const bookingSchema = new mongoose.Schema({
   tour: {
     type: mongoose.Schema.ObjectId,
@@ -25,6 +26,7 @@ const bookingSchema = new mongoose.Schema({
   }
 });
 
+// populates the fields in the search results (наполняет поля данных во время поиска)
 bookingSchema.pre(/^find/, function(next) {
   this.populate('user').populate({
     path: 'tour',
@@ -32,11 +34,6 @@ bookingSchema.pre(/^find/, function(next) {
   });
   next();
 });
-
-// bookingSchema.pre('save', function(next) {
-//   console.log(this.tour);
-//   next();
-// });
 
 const Booking = mongoose.model('Booking', bookingSchema);
 

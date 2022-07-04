@@ -1,23 +1,26 @@
-//check how we create an object on STRIPE... we call it as a function and
+// adding stripe technology using our secret key (добавляем stripe технологию с использованием секретного ключа)
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+// bring booking, user and tour models to save and search for bookings (добавляем модели для туров, пользователей и бронирования)
 const Tour = require('./../models/tourModel');
-// const APIFeatures = require('./../utils/apiFeatures');
-const catchAsync = require('./../utils/catchAsync');
-const AppError = require('./../utils/appError');
-const factory = require('./handlerFactory');
-const Booking = require('./../models/bookingModel.js');
 const User = require('./../models/userModel.js');
+const Booking = require('./../models/bookingModel.js');
+// one of our utils that wraps the asyncronous functions (наша утилита для работы с асинхронным кодом)
+const catchAsync = require('./../utils/catchAsync');
+// one of our utils with universal functions/handlers (наша утилита с универсальными функциями)
+const factory = require('./handlerFactory');
 
+/**
+ * creates and send the checkout session request once the user tries to book a tour (создать и отправить запрос на специальную сессию для оплаты бронирования)
+ * @param {reqObject, resObject, function}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 exports.getCheckoutSession = catchAsync(async (req, res, next) => {
-  // 1. get the currently booked tour
+  // get the currently booked tour (получает данные о выбранном туре)
   const tour = await Tour.findById(req.params.tourId);
-  // 2. create checkout session
+  // create checkout session (создает сессия для оплаты бронирования)
   const session = await stripe.checkout.sessions.create({
     payment_method_types: ['card'],
-    //this long url is unsafe and is a temp solution for data transfer to the success page
-    // success_url: `${req.protocol}://${req.get('host')}/my-tours/?tour=${req.params.tourId}&user=${req.user.id}&price=${
-    //   tour.price
-    // }`, //ONCE WE ADDED THE WEBHOOKCHECKOUT HANDLER, WE DO NOT NEED THIS LONG URL WITH PARAMS
     success_url: `${req.protocol}://${req.get('host')}/my-tours?alert=booking`,
     cancel_url: `${req.protocol}://${req.get('host')}/tour/${tour.slug}`,
     customer_email: req.user.email,
@@ -27,61 +30,56 @@ exports.getCheckoutSession = catchAsync(async (req, res, next) => {
         name: `${tour.name} tour`,
         description: tour.summary,
         images: [`${req.protocol}://${req.get('host')}/img/tours/${tour.imageCover}`],
-        //because most currencies have 100 cents and we need to specify the price in cents, we multiply the sum by 100
         amount: tour.price * 100,
         currency: 'usd',
-        // quantity here is for the number of booked tours
         quantity: 1
       }
     ]
   });
-  // 3. send the session to client
+  // send the session to client (отправляет ее клиенту)
   res.status(200).json({
     status: 'success',
     session
   });
 });
 
-//ONCE WE ADDED THE WEBHOOKCHECKOUT HANDLER, WE DO NOT NEED IT
-// exports.createBookingCheckout = catchAsync(async (req, res, next) => {
-//   //as in stripe success_url we pass this data (TEMPORARY SOLUTION), we can retrieve it and create a Booking model using this data
-//   const { tour, user, price } = req.query;
-//   if (!tour && !user && !price) return next();
-
-//   await Booking.create({ tour, user, price });
-
-//   //   next();
-//   //this is cheating... what we do is we create a new request to go to a certain page.. so, after the booking is created, we go to the homepage.. however, because there is no more tour, user and price, then the booking will not be make and stored in te DB anymore. If we left the smae URL, then it would be endless req->res cycle ... it is ONLY done to hide the booking details (tour user and price) from the URL field
-//   res.redirect(req.originalUrl.split('?')[0]);
-// });
-
+// functions create based on the factory util (функции для обработки запросов по маршрутам, построенные на базе функции в нашей утилите)
 exports.createBooking = factory.createOne(Booking);
 exports.getOneBooking = factory.getOne(Booking);
 exports.getAllBookings = factory.getAll(Booking);
 exports.updateBookingDetails = factory.updateOne(Booking);
 exports.deleteOneBooking = factory.deleteOne(Booking);
 
+/**
+ * if booking was successful, stores booking info in the DB (если бронирование успешно, сохраняет инфу в базе данных)
+ * @param {object}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 const createBookingCheckout = async session => {
   const tour = session.client_reference_id;
   const user = (await User.findOne({ email: session.customer_email }))._id;
-  // const price = session.line_items[0].amount / 100;
   const price = session.amount_total / 100;
   await Booking.create({ tour, user, price });
 };
 
-//THIS IS A HANDLER FOR WEBHOOK CHECKOUT (Route is in app.js)
+/**
+ * receives the session data and initiates the checkout process (получает данные по сессии и запускает ее)
+ * @param {reqObject, resObject, function}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 exports.webhookCheckout = async (req, res, next) => {
-  //first we are retrieving the signature from stripe
+  // retrieves the signature from stripe (выводит официальную сигнатуру stripe)
   const signature = req.headers['stripe-signature'];
   let event;
   try {
-    //then we trigger the event
+    // triggers the event (запускает процесс)
     event = stripe.webhooks.constructEvent(req.body, signature, process.env.STRIPE_WEBHOOK_SECRET);
   } catch (err) {
     return res.status(400).send(`Webhook error: ${err.message}`);
   }
-  //and check if that event was successful. for that, we created another function to use here
+  // checks if that event was successful and saves data (проверяет, была ли сессия успешна и сохраняет данные)
   if (event.type === 'checkout.session.completed') createBookingCheckout(event.data.object);
-
   res.status(200).json({ received: true });
 };
