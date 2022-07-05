@@ -1,4 +1,4 @@
-import '@babel/polyfill'; // it kinda improves/adapts javascript features
+import '@babel/polyfill'; // improves/adapts javascript features
 import { login, logout } from './login.js';
 import { updateSettings } from './updateSettings.js';
 import { displayMap } from './mapbox.js';
@@ -12,23 +12,18 @@ const logoutBtn = document.querySelector('.nav__el--logout');
 const updateUserForm = document.querySelector('.form-user-data');
 const updatePasswordForm = document.querySelector('.form-user-password');
 const bookTourBtn = document.getElementById('book-tour');
-// const btnUpdateUserData = document.querySelector('.btn--save-user-data');
-// const accountBtn = document.querySelector('.nav__el--');
 
 //VALUES
 let email;
 let password;
 
-let newName;
-let newEmail;
-
-//DELEGATION
+// displays the map with the tour details (отображает карту с деталями тура)
 if (mapBox) {
   const locations = JSON.parse(mapBox.dataset.locations);
-  // console.log(locations);
   displayMap(locations);
 }
 
+// adds an event listener, if the page contains login form (добавляет приемник событий, если на странице имеется форма для входа)
 if (loginForm) {
   loginForm.addEventListener('submit', e => {
     e.preventDefault();
@@ -38,19 +33,19 @@ if (loginForm) {
   });
 }
 
+// adds an event listener, if the page contains logout btn (добавляет приемник событий, если на странице имеется форма для выхода)
 if (logoutBtn) {
   logoutBtn.addEventListener('click', logout);
 }
 
+// adds a event listeners, if the page contains usel profile  (добавляет приемник событий, если на странице имеется профиль пользователя)
 if (updateUserForm) {
   updateUserForm.addEventListener('submit', e => {
     e.preventDefault();
-    //however, to recreate the multipart form-data to then make an api call, we need to do the following
     const form = new FormData();
     form.append('name', document.getElementById('name').value);
     form.append('email', document.getElementById('email').value);
     form.append('photo', document.getElementById('photo').files[0]);
-    // const data = Object.fromEntries(updates);
     console.group(form);
     updateSettings(form, 'data');
   });
@@ -58,10 +53,8 @@ if (updateUserForm) {
   updatePasswordForm.addEventListener('submit', async e => {
     e.preventDefault();
     document.querySelector('.btn--save-password').textContent = 'Updating';
-    // console.log('Password submission has been triggered');
     const updates = new FormData(updatePasswordForm);
     const data = Object.fromEntries(updates);
-    // console.log(data);
     await updateSettings(data, 'password');
     document.getElementById('password-current').value = '';
     document.getElementById('password').value = '';
@@ -69,7 +62,7 @@ if (updateUserForm) {
     document.querySelector('.btn--save-password').textContent = 'Save password';
   });
 }
-
+// adds an event listener to initiate booking  (добавляет приемник событий, запускающий процесс бронирования)
 if (bookTourBtn) {
   bookTourBtn.addEventListener('click', e => {
     e.target.textContent = 'Processing...';
@@ -77,6 +70,6 @@ if (bookTourBtn) {
     bookTour(tourId);
   });
 }
-
+// checks the response object content to display a notification (проверяет наличие информации об оповещении в объекте ответа)
 const alertMessage = document.querySelector('body').dataset.alert;
 if (alertMessage) showAlert('success', alertMessage, 10);

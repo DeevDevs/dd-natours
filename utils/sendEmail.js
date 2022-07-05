@@ -1,10 +1,10 @@
+// a package that help to prepare nad send emails (пакет для создания и отправки имейлов)
 const nodemailer = require('nodemailer');
-//to render HTML for the email we need PUG packages
 const pug = require('pug');
+// a package to make the text version of the sent html message (пакет для превращения текстовых версий отправленных html сообщений)
 const htmlToText = require('html-to-text');
-// console.log(htmlToText);
-// new Email(user, url).sendWelcome();
 
+// a class for sending emails (класс для отправки имейлов)
 module.exports = class Email {
   constructor(user, url) {
     this.to = user.email;
@@ -15,14 +15,13 @@ module.exports = class Email {
 
   newTransport() {
     if (process.env.NODE_ENV === 'production') {
-      // SENDGRID
+      // SENDGRID not implemented yet
       return 1;
     }
+    // settings to send the email to mailtrap (настройки транспорта для отправки имейлов в mailtrap)
     return nodemailer.createTransport({
-      //   service: 'Gmail' //this is how we can use gmail to send emails. I also have to go to the gmail itself and activate the 'less secure app' option ... however, here we use mailtrap, and these are the settings
       host: process.env.EMAIL_HOST,
       port: process.env.EMAIL_PORT,
-      // secureConnection: false,
       auth: {
         user: process.env.EMAIL_USERNAME,
         pass: process.env.EMAIL_PASSWORD
@@ -30,26 +29,24 @@ module.exports = class Email {
     });
   }
 
-  //1.Send the actual email
+  // send the actual email (отправляет имейл)
   async send(template, subject) {
-    //1. render HTML for the email based on PUG... here we will generate the HTML document that we will eventually send to the user
+    // render HTML for the email based on PUG... here we will generate the HTML document that we will eventually send to the user
     const html = pug.renderFile(`${__dirname}/../views/emails/${template}.pug`, {
       firstName: this.firstName,
       url: this.url,
       subject
     });
-    // console.log(html);
-    //2. define email options
+    // define email options (определяет параметры имейла)
     const mailOptions = {
       from: this.from,
       to: this.to,
       subject: subject,
       html: html,
-      //to make the text version of the sent html message, we need a package html-to-text
       text: htmlToText.fromString(html)
     };
 
-    //3. create transport and send email
+    // create transport and send email (создает транспорт и отправляет имейл)
     await this.newTransport().sendMail(mailOptions);
   }
 
@@ -61,32 +58,3 @@ module.exports = class Email {
     await this.send('passwordReset', 'Your password reset token (only valid for 10 minutes)');
   }
 };
-
-// const sendEmail = async options => {
-//   //1. create transporter
-//   const transporter = nodemailer.createTransport({
-//     //   service: 'Gmail' //this is how we can use gmail to send emails. I also have to go to the gmail itself and activate the 'less secure app' option ... however, here we use mailtrap, and these are the settings
-//     host: process.env.EMAIL_HOST,
-//     port: process.env.EMAIL_PORT,
-//     // secureConnection: false,
-//     auth: {
-//       user: process.env.EMAIL_USERNAME,
-//       pass: process.env.EMAIL_PASSWORD
-//     }
-//     // tls: {
-//     //   ciphers: 'SSLv3'
-//     // }
-//   });
-//   //2. define the email options
-//   const mailOptions = {
-//     from: 'Dmitriy Vnuchkov <admin@gmail.com>',
-//     to: options.email,
-//     subject: options.subject,
-//     text: options.message
-//     // html:
-//   };
-//   //3. send the email
-//   const results = await transporter.sendMail(mailOptions);
-// };
-
-// module.exports = sendEmail;

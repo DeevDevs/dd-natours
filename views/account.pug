@@ -28,21 +28,15 @@ block content
             .user-view__content
                 .user-view__form-container
                     h2.heading-secondary.ma-bt-md Your account settings
-                    //- Here, to show form the target wher it has to send the data, we add 'action' and 'method'. it is WITHOUT API
-                    //- form.form.form-user-data(action='/submit-user-data' method='POST')
-
-                    //- And it is WITH API
                     form.form.form-user-data
                         .form__group
                             label.form__label(for='name') Name
-                            //- to make the form submit certain data, fields with this data must have names
                             input#name.form__input(type='text', value=`${user.name}`, required, name='name')
                         .form__group.ma-bt-md
                             label.form__label(for='email') Email address
                             input#email.form__input(type='email', value=`${user.email}`, required, name='email')
                         .form__group.form__photo-upload
                             img.form__user-photo(src=`/img/users/${user.photo}`, alt='User photo')
-                            //- 'image/*' means all types of images ... if we want to do it without API, then we need to specify enctype.. (action='/submit-user-data' method='POST' enctype='multipart/form-data')... multipart is always for sending file to the server. withour it, the form will ignore the file... But in our case, we USE API, so...
                             input.form__upload(type='file', accept='image/*', id='photo' name='photo')
                             label(for='photo') Choose new photo
                         .form__group.right

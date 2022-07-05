@@ -1,9 +1,13 @@
 import axios from 'axios';
 import { showAlert } from './alerts.js';
 
-//type is either PASSWORD or NAME+EMAIL
+/**
+ * makes a request to update user details (делает запрос для апдейта деталей пользователя)
+ * @param {object, string}
+ * @returns {undefined}
+ * @author Dmitriy Vnuchkov (original idea by Jonas Shmedtmann)
+ */
 export const updateSettings = async (data, type) => {
-  // console.log(data);
   // const url =
   //   type === 'password'
   //     ? `http://127.0.0.1:8000/api/v1/users/updateMyPassword`
@@ -17,9 +21,6 @@ export const updateSettings = async (data, type) => {
     });
     if (res.data.status === 'success') {
       showAlert('success', `${type.toUpperCase()} updated successfully`);
-      //   window.setTimeout(() => {
-      //     location.reload(true);
-      //   }, 1500);
     }
   } catch (err) {
     showAlert('error', err.response.data.message);

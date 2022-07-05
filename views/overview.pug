@@ -3,7 +3,6 @@ extends base
 block content
     main.main 
         .card-container
-            //- below is a built-in pug loop that allows to create a new card for each instance of a tour in the document that I pass in the viewsController.getOverview 
             each tour in tours  
                 .card
                     .card__header

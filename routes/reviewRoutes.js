@@ -1,11 +1,12 @@
+// маршруты связанные с отзывами
 const express = require('express');
 const reviewController = require('./../controllers/reviewController');
 const authController = require('./../controllers/authController');
 
-// here we add the mergeParams as TRUE to make these parameters accessible if we transfer the request from one router to another... as far as I understand, if one router receives params in the URL and then transfers the request to another router, it can also transfer the params.. and these parameters are no accessible by default here because our router in the reviewRoutes does not have specified params in the URL (see '/')... here we fix it
+// here we add the mergeParams as TRUE to make these parameters accessible if we transfer the request from one router to another (позволяет передавать параметры запроса на другие маршруты)
 const router = express.Router({ mergeParams: true });
 
-//this line of code makes sure that no routes are accessible by non-authenticated users
+// makes sure that no routes are accessible by non-authenticated users (защищает маршруты от неавторизованного входа)
 router.use(authController.protect);
 
 router
